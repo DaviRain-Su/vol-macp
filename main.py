@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
+def calculate_ema(data, span):
+    return data.ewm(span=span, adjust=False).mean()
+
 def plot_data(input_file):
     # Read the CSV file
     df = pd.read_csv(input_file)
@@ -20,6 +23,9 @@ def plot_data(input_file):
     df["SMA20"] = df["price"].rolling(window=20).mean()
     df["SMA50"] = df["price"].rolling(window=50).mean()
 
+    # Calculate 21-day EMA
+    df["EMA21"] = calculate_ema(df["price"], 21)
+
     # Create the figure and axis objects
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(15, 20), sharex=True)
 
@@ -31,11 +37,12 @@ def plot_data(input_file):
     ax1.grid(True)
     ax1.set_title("Total Volume / Market Cap Ratio Over Time")
 
-    # Plot price and SMAs on the second subplot
+    # Plot price and moving averages on the second subplot
     ax2.set_ylabel("Price")
     ax2.plot(df["snapped_at"], df["price"], color="tab:orange", label="Price")
     ax2.plot(df["snapped_at"], df["SMA20"], color="tab:red", label="20-day SMA")
     ax2.plot(df["snapped_at"], df["SMA50"], color="tab:green", label="50-day SMA")
+    ax2.plot(df["snapped_at"], df["EMA21"], color="purple", label="21-day EMA", linestyle="--")
     ax2.tick_params(axis="y")
     ax2.grid(True)
     ax2.legend()
